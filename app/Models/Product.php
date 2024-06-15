@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Client extends Model
+class Product extends Model
 {
     use HasFactory;
 
@@ -26,28 +25,19 @@ class Client extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'client_id',
         'name',
-        'address',
-        'whatsapp',
+        'quantity',
+        'price',
     ];
 
     /**
-     * Get the user that owns the Client
+     * Get the client that owns the Product
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user(): BelongsTo
+    public function client(): BelongsTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get all of the products for the Client
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
-    public function products(): HasMany
-    {
-        return $this->hasMany(Product::class);
+        return $this->belongsTo(Client::class);
     }
 }
