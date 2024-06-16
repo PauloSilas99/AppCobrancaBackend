@@ -97,4 +97,20 @@ class ProductController extends Controller
 
         return response()->json(['Produto excluído com êxito.'], 200);
     }
+
+    /**
+     * Display a listing of the resource by the specified user.
+     */
+    public function indexClient(string $id)
+    {
+        $validator = Validator::make(['client_id' => $id], [
+            'client_id' => 'exists:clients,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 404);
+        }
+
+        return Client::findOrFail($id)->products;
+    }
 }

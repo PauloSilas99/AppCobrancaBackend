@@ -98,4 +98,20 @@ class ClientController extends Controller
 
         return response()->json(['Cliente excluído com êxito.'], 200);
     }
+
+    /**
+     * Display a listing of the resource by the specified user.
+     */
+    public function indexUser(string $id)
+    {
+        $validator = Validator::make(['user_id' => $id], [
+            'user_id' => 'exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 404);
+        }
+
+        return User::findOrFail($id)->clients;
+    }
 }
