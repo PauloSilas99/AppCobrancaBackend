@@ -60,7 +60,22 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        return 'update';
+        $validator = Validator::make($request->all(), [
+            'client_id' => 'required|integer|exists:clients,id',
+            'name' => 'required|string',
+            'quantity' => 'required|integer',
+            'price' => 'required|decimal:0,2',
+            'product_id' => 'exists:products,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $validated = $validator->validated();
+
+        Product::findOrFail($id)->update($validated);
+        return Product::findOrFail($id);
     }
 
     /**

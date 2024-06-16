@@ -60,7 +60,22 @@ class ClientController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        return 'update';
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:users,id',
+            'name' => 'required|string',
+            'address' => 'required|string',
+            'whatsapp' => 'required|string|max:11',
+            'client_id' => 'exists:clients,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $validated = $validator->validated();
+
+        Client::findOrFail($id)->update($validated);
+        return Client::findOrFail($id);
     }
 
     /**

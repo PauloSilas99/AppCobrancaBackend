@@ -58,7 +58,21 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        return 'update';
+        $validator = Validator::make($request->all() + ['user_id' => $id], [
+            'name' => 'nullable|string',
+            'email' => 'nullable|string|unique:users,email',
+            'password' => 'nullable|string',
+            'user_id' => 'exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $validated = $validator->validated();
+        $validated['password'] = bcrypt($validated['password']);
+
+        return User::findOrFail($id)->update($validated);
     }
 
     /**
