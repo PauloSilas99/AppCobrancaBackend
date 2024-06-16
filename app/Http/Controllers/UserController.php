@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -28,7 +29,15 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        return 'show';
+        $validator = Validator::make(['user_id' => $id], [
+            'user_id' => 'exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 404);
+        }
+
+        return User::findOrFail($id);
     }
 
     /**

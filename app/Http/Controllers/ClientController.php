@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ClientController extends Controller
 {
@@ -28,7 +29,15 @@ class ClientController extends Controller
      */
     public function show(string $id)
     {
-        return 'show';
+        $validator = Validator::make(['client_id' => $id], [
+            'client_id' => 'exists:clients,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 404);
+        }
+
+        return Client::findOrFail($id);
     }
 
     /**

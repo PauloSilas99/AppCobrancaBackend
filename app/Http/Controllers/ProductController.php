@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -28,7 +29,15 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        return 'show';
+        $validator = Validator::make(['product_id' => $id], [
+            'product_id' => 'exists:products,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 404);
+        }
+
+        return Product::findOrFail($id);
     }
 
     /**
