@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -21,7 +22,21 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
-        return 'store';
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:users,id',
+            'name' => 'required|string',
+            'address' => 'required|string',
+            'whatsapp' => 'required|string|max:11',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $validated = $validator->validated();
+
+        $user = User::findOrFail($validated['user_id']);
+        return $user->clients()->create($validated);
     }
 
     /**

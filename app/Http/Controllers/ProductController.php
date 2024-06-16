@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,7 +22,21 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        return 'store';
+        $validator = Validator::make($request->all(), [
+            'client_id' => 'required|integer|exists:clients,id',
+            'name' => 'required|string',
+            'quantity' => 'required|integer',
+            'price' => 'required|decimal:0,2',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $validated = $validator->validated();
+
+        $client = Client::findOrFail($validated['client_id']);
+        return $client->products()->create($validated);
     }
 
     /**
