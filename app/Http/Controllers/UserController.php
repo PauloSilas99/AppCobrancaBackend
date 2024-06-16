@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -60,7 +61,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all() + ['user_id' => $id], [
             'name' => 'nullable|string',
-            'email' => 'nullable|string|unique:users,email',
+            'email' => ['nullable', 'string', Rule::unique('users')->ignore($id),],
             'password' => 'nullable|string',
             'user_id' => 'exists:users,id',
         ]);
@@ -72,7 +73,8 @@ class UserController extends Controller
         $validated = $validator->validated();
         $validated['password'] = bcrypt($validated['password']);
 
-        return User::findOrFail($id)->update($validated);
+        User::findOrFail($id)->update($validated);
+        return User::findOrFail($id);
     }
 
     /**
@@ -80,6 +82,23 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        return 'destroy';
+        $validator = Validator::make(['user_id' => $id], [
+            'user_id' => 'exists:users,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $user = User::findOrFail($id);
+
+        foreach ($user->clients as $client) {
+            $client->products()->delete();
+        }
+
+        $user->clients()->delete();
+        $user->delete();
+
+        return response()->json(['Usuário excluído com êxito.'], 200);
     }
 }

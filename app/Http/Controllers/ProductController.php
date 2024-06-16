@@ -83,6 +83,18 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        return 'destroy';
+        $validator = Validator::make(['product_id' => $id], [
+            'product_id' => 'exists:products,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $product = Product::findOrFail($id);
+
+        $product->delete();
+
+        return response()->json(['Produto excluído com êxito.'], 200);
     }
 }

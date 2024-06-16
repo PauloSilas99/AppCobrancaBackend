@@ -83,6 +83,19 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
-        return 'destroy';
+        $validator = Validator::make(['client_id' => $id], [
+            'client_id' => 'exists:clients,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
+
+        $client = Client::findOrFail($id);
+
+        $client->products()->delete();
+        $client->delete();
+
+        return response()->json(['Cliente excluído com êxito.'], 200);
     }
 }
